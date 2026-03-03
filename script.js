@@ -1027,14 +1027,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function buildRound() {
     const allIndices = Array.from({ length: sentences.length }, (_, i) => i);
-    questionOrder = shuffleArray(allIndices).slice(0, Math.min(MAX_QUESTIONS, sentences.length));
+    questionOrder = shuffleArray(allIndices).slice(
+      0,
+      Math.min(MAX_QUESTIONS, sentences.length)
+    );
     orderPos = 0;
 
     console.log("Ny runde (random rækkefølge):", questionOrder);
   }
 
   function showFinished() {
-    // stop evt. timer
     if (timerId) {
       clearTimeout(timerId);
       timerId = null;
@@ -1063,7 +1065,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function goNext() {
     orderPos++;
 
-    // STOP efter 15 (eller færre hvis ikke nok spørgsmål)
     if (orderPos >= questionOrder.length) {
       showFinished();
       return;
@@ -1073,7 +1074,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function loadQuestion() {
-    // stop evt. gammel auto-videre-timer
     if (timerId) {
       clearTimeout(timerId);
       timerId = null;
@@ -1089,13 +1089,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     answered = false;
 
-    // Vis progress + sætning
-    const progress = `Spørgsmål ${orderPos + 1}/${questionOrder.length}`;
-    questionEl.textContent = `${progress}: ${q.sentence}`;
+    // Vis kun sætningen (ingen “Spørgsmål 6/15”)
+    questionEl.textContent = q.sentence;
 
     answersEl.innerHTML = "";
 
-    // “Næste” er kun relevant ved forkert
     nextBtn.disabled = true;
 
     const shuffledOptions = shuffleArray(q.options.map(String));
@@ -1120,7 +1118,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
 
-        // Forkert → marker rød + enable “Næste”
         if (chosen !== correct) {
           button.classList.add("wrong");
           nextBtn.disabled = false;
@@ -1128,7 +1125,6 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        // Korrekt → auto videre efter 700ms
         timerId = setTimeout(() => {
           timerId = null;
           goNext();
