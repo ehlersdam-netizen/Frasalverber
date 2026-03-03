@@ -999,9 +999,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  let currentQuestion = 0;
+  const MAX_QUESTIONS = 15;
+
   let answered = false;
   let timerId = null;
+
+  // Rækkefølge og position (styrer random + 15 pr. runde)
+  let questionOrder = [];
+  let orderPos = 0;
 
   const questionEl = document.getElementById("question");
   const answersEl = document.getElementById("answers");
@@ -1012,8 +1017,33 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // Fisher–Yates shuffle (robust tilfældighed)
+  function shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function buildNewRound() {
+    const allIndices = Array.from({ length: sentences.length }, (_, i) => i);
+    questionOrder = shuffleArray(allIndices).slice(
+      0,
+      Math.min(MAX_QUESTIONS, sentences.length)
+    );
+    orderPos = 0;
+  }
+
   function goNext() {
-    currentQuestion = (currentQuestion + 1) % sentences.length;
+    orderPos++;
+
+    // Slut på runde: lav ny random runde (15 nye)
+    if (orderPos >= questionOrder.length) {
+      buildNewRound();
+    }
+
     loadQuestion();
   }
 
@@ -1024,7 +1054,9 @@ document.addEventListener("DOMContentLoaded", () => {
       timerId = null;
     }
 
-    const q = sentences[currentQuestion];
+    const idx = questionOrder[orderPos];
+    const q = sentences[idx];
+
     if (!q || !Array.isArray(q.options)) {
       console.error("FEJL: Spørgsmålet mangler 'options' eller er ugyldigt:", q);
       return;
@@ -1038,7 +1070,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // “Næste” er kun relevant, hvis man svarer forkert
     nextBtn.disabled = true;
 
-    const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+    // Shuffle svarmuligheder (robust)
+    const shuffled = shuffleArray(q.options.map(String));
 
     shuffled.forEach((optRaw) => {
       const opt = String(optRaw);
@@ -1090,5 +1123,7 @@ document.addEventListener("DOMContentLoaded", () => {
     goNext();
   });
 
+  // Start: lav første runde og load første spørgsmål
+  buildNewRound();
   loadQuestion();
 });
