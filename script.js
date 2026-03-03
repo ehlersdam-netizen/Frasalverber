@@ -1004,7 +1004,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let answered = false;
   let timerId = null;
 
-  // Rækkefølge og position (styrer random + 15 pr. runde)
   let questionOrder = [];
   let orderPos = 0;
 
@@ -1017,7 +1016,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Fisher–Yates shuffle (robust tilfældighed)
   function shuffleArray(arr) {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -1027,21 +1025,48 @@ document.addEventListener("DOMContentLoaded", () => {
     return a;
   }
 
-  function buildNewRound() {
+  function buildRound() {
     const allIndices = Array.from({ length: sentences.length }, (_, i) => i);
-    questionOrder = shuffleArray(allIndices).slice(
-      0,
-      Math.min(MAX_QUESTIONS, sentences.length)
-    );
+    questionOrder = shuffleArray(allIndices).slice(0, Math.min(MAX_QUESTIONS, sentences.length));
     orderPos = 0;
+
+    console.log("Ny runde (random rækkefølge):", questionOrder);
+  }
+
+  function showFinished() {
+    // stop evt. timer
+    if (timerId) {
+      clearTimeout(timerId);
+      timerId = null;
+    }
+
+    questionEl.textContent = `Færdig! Du har gennemført ${questionOrder.length} spørgsmål.`;
+    answersEl.innerHTML = "";
+
+    nextBtn.disabled = true;
+    nextBtn.style.display = "none";
+
+    const restartBtn = document.createElement("button");
+    restartBtn.type = "button";
+    restartBtn.id = "restartBtn";
+    restartBtn.textContent = "Ny runde (15 nye)";
+    restartBtn.addEventListener("click", () => {
+      restartBtn.remove();
+      nextBtn.style.display = "";
+      buildRound();
+      loadQuestion();
+    });
+
+    answersEl.appendChild(restartBtn);
   }
 
   function goNext() {
     orderPos++;
 
-    // Slut på runde: lav ny random runde (15 nye)
+    // STOP efter 15 (eller færre hvis ikke nok spørgsmål)
     if (orderPos >= questionOrder.length) {
-      buildNewRound();
+      showFinished();
+      return;
     }
 
     loadQuestion();
@@ -1064,18 +1089,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     answered = false;
 
-    questionEl.textContent = q.sentence;
+    // Vis progress + sætning
+    const progress = `Spørgsmål ${orderPos + 1}/${questionOrder.length}`;
+    questionEl.textContent = `${progress}: ${q.sentence}`;
+
     answersEl.innerHTML = "";
 
-    // “Næste” er kun relevant, hvis man svarer forkert
+    // “Næste” er kun relevant ved forkert
     nextBtn.disabled = true;
 
-    // Shuffle svarmuligheder (robust)
-    const shuffled = shuffleArray(q.options.map(String));
+    const shuffledOptions = shuffleArray(q.options.map(String));
 
-    shuffled.forEach((optRaw) => {
-      const opt = String(optRaw);
-
+    shuffledOptions.forEach((opt) => {
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = opt;
@@ -1105,12 +1130,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Korrekt → auto videre efter 700ms
         timerId = setTimeout(() => {
-          try {
-            timerId = null;
-            goNext();
-          } catch (e) {
-            console.error("FEJL i auto-videre:", e);
-          }
+          timerId = null;
+          goNext();
         }, 700);
       });
 
@@ -1119,11 +1140,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   nextBtn.addEventListener("click", () => {
-    if (nextBtn.disabled) return; // ekstra sikkerhed
+    if (nextBtn.disabled) return;
     goNext();
   });
 
-  // Start: lav første runde og load første spørgsmål
-  buildNewRound();
+  buildRound();
   loadQuestion();
 });
