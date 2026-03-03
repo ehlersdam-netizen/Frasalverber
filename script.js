@@ -542,7 +542,8 @@ const sentences = [
   sentence: "Hun rådede sin ven ___ at søge jobbet.",
   answer: "til",
   options: ["til", "fra", "om", "på"]
-
+},
+  
 /* at råde nogen fra noget */
 { verb: "at råde nogen fra noget",
   sentence: "Lægen rådede ham ___ operationen.",
