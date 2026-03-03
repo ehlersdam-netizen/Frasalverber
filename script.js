@@ -543,8 +543,6 @@ const sentences = [
   answer: "til",
   options: ["til", "fra", "om", "på"]
 
-const sentences3 = [
-
 /* at råde nogen fra noget */
 { verb: "at råde nogen fra noget",
   sentence: "Lægen rådede ham ___ operationen.",
