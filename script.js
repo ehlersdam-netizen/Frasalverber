@@ -1000,6 +1000,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   let currentQuestion = 0;
+  let answered = false;
 
   const questionEl = document.getElementById("question");
   const answersEl = document.getElementById("answers");
@@ -1012,8 +1013,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function loadQuestion() {
     const q = sentences[currentQuestion];
+    answered = false;
+
     questionEl.textContent = q.sentence;
     answersEl.innerHTML = "";
+
+    nextBtn.disabled = true; // 🔒 disable næste
 
     const shuffled = [...q.options].sort(() => Math.random() - 0.5);
 
@@ -1021,13 +1026,29 @@ document.addEventListener("DOMContentLoaded", () => {
       const button = document.createElement("button");
       button.type = "button";
       button.textContent = opt;
+
       button.addEventListener("click", () => {
-        if (opt === q.answer) {
-          alert("Korrekt!");
-        } else {
-          alert(`Forkert! Rigtigt svar: ${q.answer}`);
-        }
+        if (answered) return;
+        answered = true;
+
+        const allButtons = answersEl.querySelectorAll("button");
+
+        allButtons.forEach(btn => {
+          btn.disabled = true;
+
+          if (btn.textContent === q.answer) {
+            btn.classList.add("correct");
+          }
+
+          if (btn.textContent === opt && opt !== q.answer) {
+            btn.classList.add("wrong");
+          }
+        });
+
+        nextBtn.disabled = false; // 🔓 enable næste
+        nextBtn.focus();
       });
+
       answersEl.appendChild(button);
     });
   }
