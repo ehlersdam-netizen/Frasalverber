@@ -22,7 +22,7 @@ body {
   line-height: 1.4;
 }
 
-/* Generelle svar-knapper */
+/* Svar-knapper */
 #answers button {
   display: block;
   margin-top: 10px;
@@ -32,30 +32,36 @@ body {
   border: 1px solid #e2e8f0;
   background: #f8fafc;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
   font-size: 14px;
+  text-align: left;
 }
 
 #answers button:hover:not(:disabled) {
   background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+#answers button:active:not(:disabled) {
+  transform: scale(0.99);
 }
 
 #answers button:disabled {
   cursor: default;
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 /* Rigtigt / forkert */
-button.correct {
+#answers button.correct {
   background-color: #16a34a !important;
   color: white;
-  border-color: #16a34a;
+  border-color: #16a34a !important;
 }
 
-button.wrong {
+#answers button.wrong {
   background-color: #dc2626 !important;
   color: white;
-  border-color: #dc2626;
+  border-color: #dc2626 !important;
 }
 
 /* Næste-knap */
@@ -63,27 +69,43 @@ button.wrong {
   margin-top: 25px;
   padding: 12px;
   width: 100%;
-  border-radius: 6px;
-  border: none;
+  border-radius: 8px;
+  border: 1px solid transparent;
   background-color: #1e293b;
   color: white;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: transform 0.08s ease, background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 #nextBtn:hover:not(:disabled) {
   background-color: #334155;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
 }
 
+#nextBtn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+/* Gør disabled MEGET tydelig */
 #nextBtn:disabled {
-  background-color: #94a3b8;
+  background-color: #cbd5e1;   /* lysere end før */
+  color: #64748b;             /* grå tekst */
+  border-color: #cbd5e1;
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 1;                 /* drop “faded” look – det kan snyde */
+  box-shadow: none;
 }
 
+/* Når den bliver enabled og får focus via JS */
 #nextBtn:focus {
-  outline: 3px solid #3b82f6;
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.35);
+}
+
+/* Bonus: også når man klikker/Tab'er */
+#nextBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.35);
 }
