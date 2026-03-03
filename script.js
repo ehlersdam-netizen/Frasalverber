@@ -988,40 +988,54 @@ const sentences = [
 
 ];
 
-let currentQuestion = 0;
+// Noter (valgfrit)
+// - venter på DOMContentLoaded
+// - tjekker at sentences har indhold
+// - tjekker at HTML-elementer findes
 
-const questionEl = document.getElementById("question");
-const answersEl = document.getElementById("answers");
-const nextBtn = document.getElementById("nextBtn");
-
-function loadQuestion() {
-  const q = sentences[currentQuestion];
-  questionEl.innerText = q.sentence;
-  answersEl.innerHTML = "";
-
-  // (valgfrit) shuffle options, så korrekt svar ikke altid ligger samme sted
-  const shuffled = [...q.options].sort(() => Math.random() - 0.5);
-
-  shuffled.forEach((opt) => {
-    const button = document.createElement("button");
-    button.innerText = opt;
-    button.onclick = () => checkAnswer(opt, q.answer);
-    answersEl.appendChild(button);
-  });
-}
-
-function checkAnswer(chosen, correct) {
-  if (chosen === correct) {
-    alert("Korrekt!");
-  } else {
-    alert(`Forkert! Rigtigt svar: ${correct}`);
+document.addEventListener("DOMContentLoaded", () => {
+  if (!Array.isArray(sentences) || sentences.length === 0) {
+    console.error("FEJL: 'sentences' er tom eller findes ikke.");
+    return;
   }
-}
 
-nextBtn.onclick = () => {
-  currentQuestion++;
-  if (currentQuestion >= sentences.length) currentQuestion = 0;
+  let currentQuestion = 0;
+
+  const questionEl = document.getElementById("question");
+  const answersEl = document.getElementById("answers");
+  const nextBtn = document.getElementById("nextBtn");
+
+  if (!questionEl || !answersEl || !nextBtn) {
+    console.error("FEJL: Mangler #question, #answers eller #nextBtn i HTML.");
+    return;
+  }
+
+  function loadQuestion() {
+    const q = sentences[currentQuestion];
+    questionEl.textContent = q.sentence;
+    answersEl.innerHTML = "";
+
+    const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+
+    shuffled.forEach((opt) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = opt;
+      button.addEventListener("click", () => {
+        if (opt === q.answer) {
+          alert("Korrekt!");
+        } else {
+          alert(`Forkert! Rigtigt svar: ${q.answer}`);
+        }
+      });
+      answersEl.appendChild(button);
+    });
+  }
+
+  nextBtn.addEventListener("click", () => {
+    currentQuestion = (currentQuestion + 1) % sentences.length;
+    loadQuestion();
+  });
+
   loadQuestion();
-};
-
-loadQuestion();
+});
